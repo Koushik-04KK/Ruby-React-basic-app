@@ -1,0 +1,29 @@
+# Stage 1: Build the React application
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Copy package.json and install dependencies
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm install
+
+# Copy the rest of the frontend code
+COPY frontend/ .
+
+# Build the app (adjust the command if not using default 'npm run build')
+RUN npm run build
+
+# Stage 2: Serve the application with a lightweight server (like Nginx)
+FROM nginx:alpine
+
+# *** CORRECTED LINE HERE ***
+# Copy the built files from the build stage to the Nginx content directory
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Copy a custom Nginx config (optional, but good practice for SPAs)
+
+# Expose the Nginx port
+EXPOSE 80
+
+# The default command runs Nginx
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # --- 1. PostgreSQL Database Service ---
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      # These must match the values used in app.rb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: todo_db
+    volumes:
+      # Optional: Persist the database data
+      - postgres_data:/var/lib/postgresql/data
+      # Initialize the database with your schema
+      - ./backend/db/migrate/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      # Map the container port 5432 to host port 5432 (optional, but useful for debugging)
+      - "5432:5432"
+
+  # --- 2. Sinatra Backend Service ---
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+    command: sh -c "sleep 5 && bundle exec puma -t 5:5 -p 4567 -e development"
+    ports:
+      # Map container port 4567 to host port 4567
+      - "4567:4567"
+    environment:
+      # Pass the database credentials, using the SERVICE NAME 'db' as the host!
+      DATABASE_URL: postgres://postgres:1234@db:5432/todo_db
+    depends_on:
+      - db
+    volumes:
+      # Mount the current directory (excluding dependencies/gems)
+      - ./backend:/usr/src/app
+
+  # --- 3. React Frontend Service ---
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    ports:
+      # Map container port 80 (Nginx default) to host port 3000 (or any other port you prefer)
+      - "3000:80"
+    depends_on:
+      - backend
+
+# --- 4. Volumes for Data Persistence ---
+volumes:
+  postgres_data:
