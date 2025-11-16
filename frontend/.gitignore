@@ -1,0 +1,38 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+### FRONTEND (React) Dependencies and Artifacts ###
+/frontend/node_modules
+/frontend/.pnp
+/frontend/.pnp.js
+/frontend/coverage
+
+# Production build artifact path (already built inside the Docker image)
+/frontend/build 
+/frontend/dist
+
+# Frontend misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+### BACKEND (Ruby/Sinatra) Dependencies ###
+# Ruby/Bundler dependencies installed locally
+/backend/vendor/bundle
+/backend/.bundle
+/backend/Gemfile.lock
+/backend/*.log
+/backend/tmp/
+
+### DOCKER and System Files ###
+# Docker volumes (where Postgres data is stored)
+/postgres_data/ 
+# Standard Docker Compose volume name (used in docker-compose.yml)
+volumes/
+
+# Environment files (sensitive data like passwords/keys should be here)
+.env
+.env.*.local
+
+# System/IDE files
+.DS_Store
+node_modules
